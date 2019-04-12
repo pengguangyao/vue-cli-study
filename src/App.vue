@@ -143,6 +143,9 @@
     .user{
       font-size: 16px;
       cursor: pointer;
+      .ivu-icon{
+        font-size: 20px;
+      }
     }
     .ivu-select-dropdown{
       margin: 0;

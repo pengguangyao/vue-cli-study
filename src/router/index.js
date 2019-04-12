@@ -18,6 +18,7 @@ export default {
     {
       path: '/base',
       component: App,
+      redirect: '/control',
       children: [
         {
           path: '/control',
@@ -35,6 +36,10 @@ export default {
           path: '/success/news',
           component: ErrorComponent,
         },
+        {
+          path: '/exception/404',
+          component: LoadingComponent,
+        }
       ]
     },
     {

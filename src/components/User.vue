@@ -6,7 +6,12 @@
         <Button @click="childmethod">父组件调用子组件的方法</Button>
         <hr/>
         子组件
-        <NotFound :num="a" @addNum="add" :del="minus" ref="child"></NotFound>
+        <NotFound :num="a" @addNum="add" :del="minus" ref="child">
+            <template v-slot:default="propss">
+                {{propss.age}}
+            </template>
+            
+        </NotFound>
         
     </div>
 </template>
@@ -20,7 +25,7 @@
         },
         data(){
             return {
-                a: 100
+                a: 100,
             }
         },
         methods: {

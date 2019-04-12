@@ -4,6 +4,11 @@
         <Button @click="add(i)">增加</Button>
         <Button @click="$emit('addNum',2)">都增加</Button>
         <Button @click="del(2)">减少</Button>
+        
+        <slot v-bind="obj">
+            {{obj.name}}
+        </slot>
+        
     </div>
 </template>
 
@@ -11,13 +16,23 @@
 export default {
     name: 'NotFound',
     props: {
-        num: Number,
-        del: Function,
+        num: {
+            type: Number,
+            default: 666,
+        },
+        del: {
+            type: Function,
+            default: ()=>{},
+        },
     },
     data(){
         return {
             b: this.num,
-            i: 1
+            i: 1,
+            obj: {
+                name: 'xaioepm', 
+                age: 22,
+            }
         }
     },
     computed: {

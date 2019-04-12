@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { getChart } from '@/service/api';
 export default {
     namespaced: true,
     state: {
@@ -7,10 +8,6 @@ export default {
         count: 0
     },
     mutations: {
-        fetch(state, payload){
-            console.log(payload);
-            state.a++
-        },
         changeData(state, payload){
             state.data = _.get(payload, 'data.dataList', []);
             state.count = _.get(payload, 'data.dataCount', 0);
@@ -19,11 +16,7 @@ export default {
 
     actions: {
         async fetch({commit, state}, payload){
-            
-            const response =  await fetch('/raykite-resource/chart/list/1/8').then(res => {
-                return res.json();
-            });
-            
+            const response =  await getChart(payload);
             commit('changeData', response)
         }
     }
