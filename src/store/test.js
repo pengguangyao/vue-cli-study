@@ -18,6 +18,7 @@ export default {
         async fetch({commit, state}, payload){
             const response =  await getChart(payload);
             commit('changeData', response)
+            return response;
         }
     }
 }

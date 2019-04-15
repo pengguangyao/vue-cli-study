@@ -4,11 +4,10 @@
         <Button @click="add(i)">增加</Button>
         <Button @click="$emit('addNum',2)">都增加</Button>
         <Button @click="del(2)">减少</Button>
-        
-        <slot v-bind="obj">
-            {{obj.name}}
+        {{obj.age}}
+        <slot v-bind:user="obj">
+            13211
         </slot>
-        
     </div>
 </template>
 

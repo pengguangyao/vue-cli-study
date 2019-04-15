@@ -7,10 +7,9 @@
         <hr/>
         子组件
         <NotFound :num="a" @addNum="add" :del="minus" ref="child">
-            <template v-slot:default="propss">
-                {{propss.age}}
+            <template v-slot:default="{user}">
+                {{user.name}}
             </template>
-            
         </NotFound>
         
     </div>

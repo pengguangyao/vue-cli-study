@@ -6,6 +6,9 @@ import 'iview/dist/styles/iview.css';
 import store from './store';
 import routes from './router';
 
+//引用mockjs
+import './mock/index';
+
 //使用插件
 Vue.use(Vuex);
 Vue.use(iView);

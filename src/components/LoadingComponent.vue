@@ -3,8 +3,16 @@
 </template>
 
 <script>
-export default {
-    name: 'LoadingComponent'
-}
+    export default {
+        name: 'LoadingComponent',
+        data(){
+            return {
+
+            }
+        },
+        mounted(){
+            
+        }
+    }
 </script>
 
