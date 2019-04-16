@@ -1,5 +1,5 @@
 import {appStore, router} from '../main';
-import axios from 'axios';
+// import axios from 'axios';
 
 export const root =  process.env.NODE_ENV === 'development'?undefined:"/api"
 const codeMessage = {
@@ -54,64 +54,64 @@ function checkCode(data) {
   }
 }
 
-// export default function request(url, options) {
-//   const reqUrl = root ? `${root}${url}` : url;
-//   const defaultOptions = {
-//     //表示跨域请求是可以带cookie (fetch跨域请求默认不会带cookie)
-//     credentials: 'include',
-//   };
-//   const newOptions = { ...defaultOptions, ...options };
-//   if (
-//     newOptions.method === 'POST' ||
-//     newOptions.method === 'PUT' ||
-//     newOptions.method === 'DELETE'
-//   ) {
-//     if (!(newOptions.body instanceof FormData)) {
-//       newOptions.headers = {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json; charset=utf-8',
-//         //一般用于表单提交
-//         // 'Content-Type': 'application/x-www-form-urlencoded', 
-//         ...newOptions.headers,
-//       };
-//       newOptions.body = JSON.stringify(newOptions.body);
-//     } else {
-//       newOptions.headers = {
-//         Accept: 'application/json',
-//         'Content-Type': 'multipart/form-data',
-//         ...newOptions.headers,
-//       };
-//     }
-//   }
-//   return fetch(reqUrl, newOptions)
-//     .then(checkStatus)
-//     .then(response => {
-//       return response.json();
-//     })
-//     .then(checkCode)
-//     .catch(e => {
-//       const { dispatch } = appStore;
-//       const status = e.name;
-//       if (status === 401) {
-//         return;
-//       }
-//       if (status === 403) {
-//         // dispatch(router.push('/exception/403'));
-//         return;
-//       }
-//       if (status <= 504 && status >= 500) {
-//         // dispatch(router.push('/exception/500'));
-//         return;
-//       }
-//       if (status >= 404 && status < 422) {
-//         router.push('/exception/404');
-//       }
-//     });
-// }
+export default function request(url, options) {
+  const reqUrl = root ? `${root}${url}` : url;
+  const defaultOptions = {
+    //表示跨域请求是可以带cookie (fetch跨域请求默认不会带cookie)
+    credentials: 'include',
+  };
+  const newOptions = { ...defaultOptions, ...options };
+  if (
+    newOptions.method === 'POST' ||
+    newOptions.method === 'PUT' ||
+    newOptions.method === 'DELETE'
+  ) {
+    if (!(newOptions.body instanceof FormData)) {
+      newOptions.headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+        //一般用于表单提交
+        // 'Content-Type': 'application/x-www-form-urlencoded', 
+        ...newOptions.headers,
+      };
+      newOptions.body = JSON.stringify(newOptions.body);
+    } else {
+      newOptions.headers = {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        ...newOptions.headers,
+      };
+    }
+  }
+  return fetch(reqUrl, newOptions)
+    .then(checkStatus)
+    .then(response => {
+      return response.json();
+    })
+    .then(checkCode)
+    .catch(e => {
+      const { dispatch } = appStore;
+      const status = e.name;
+      if (status === 401) {
+        return;
+      }
+      if (status === 403) {
+        // dispatch(router.push('/exception/403'));
+        return;
+      }
+      if (status <= 504 && status >= 500) {
+        // dispatch(router.push('/exception/500'));
+        return;
+      }
+      if (status >= 404 && status < 422) {
+        router.push('/exception/404');
+      }
+    });
+}
 
 
 
 //axios
-export default function request(url, options){
-  return axios.get(url).then(res => res.data)
-}
+// export default function request(url, options){
+//   return axios.get(url).then(res => res.data)
+// }

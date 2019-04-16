@@ -14,7 +14,11 @@ module.exports = {
       '/raykite-resource': {
         target: 'http://test.tools.raykite.com',
         changeOrigin: true,
-      }
+      },
+      '/file': {
+        target: 'http://test.tools.raykite.com',
+        changeOrigin: true,
+      },
     },
 
     // Various Dev Server settings
