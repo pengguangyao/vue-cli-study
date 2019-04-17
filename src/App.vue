@@ -135,10 +135,11 @@
       height: 60px;
       text-align: center;
       line-height: 60px;
-      font-size: 16px;
+      font-size: 14px;
       position: absolute;
       bottom: 0;
-      color: rgba(0, 0, 0, 0.5);
+      background: #eeeeee;
+      color: rgba(0, 0, 0, 0.65);
     }
     .user{
       font-size: 16px;

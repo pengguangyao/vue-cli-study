@@ -1,6 +1,7 @@
 <template>
     <div>
-        <Button type="primary" @click="modal = true">增加</Button>
+        <Card :bordered="false" dis-hover>
+            <Button type="primary" @click="modal = true">增加</Button>
         <div class="h20"></div>
         <Table :columns="columns" :data="data" :loading="loading"></Table>
         <div class="h20"></div>
@@ -13,7 +14,9 @@
             show-sizer
             @on-change="changePage"
             @on-page-size-change="changeSize"
-        ></Page>
+        ></Page>    
+        </Card>
+        
         <Modal
             v-model="modal"
             title="增加图表"
@@ -289,7 +292,7 @@ export default {
             fileUrl,
             editId: '',
             loading: false,
-            limit: 2,
+            limit: 5,
             page: 1,
         }
     },
