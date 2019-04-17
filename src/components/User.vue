@@ -1,6 +1,6 @@
 <template>
     <div>
-        {{ll}}
+        <br/>
         这是用户中心 父组件{{a}}
         <Button @click="add(1)">增加</Button>
         <Button @click="childmethod">父组件调用子组件的方法</Button>
@@ -37,18 +37,9 @@
             },
             childmethod: function(){
                 this.$refs.child.add(5);
-            }
+            },
         },
-        computed: {
-            ll: {
-                get: function(){
-                    return this.a*10
-                },
-                set: function(v){
-                    this.a = v-1
-                }
-            }
-        },
+        
         watch: {
             a: function(val, oldVal){
                 // console.log(val, oldVal)

@@ -1,9 +1,19 @@
 <template>
     <div>
-        <div class="add-btn">
-            <Button type="primary" @click="modal = true">增加</Button>
-        </div>
-        <Table :columns="columns" :data="data"></Table>
+        <Button type="primary" @click="modal = true">增加</Button>
+        <div class="h20"></div>
+        <Table :columns="columns" :data="data" :loading="loading"></Table>
+        <div class="h20"></div>
+        <Page 
+            :styles="{textAlign: 'right'}"
+            :total="count"
+            :page-size="limit"
+            :current="page"
+            :page-size-opts="[1,2,3,5]"
+            show-sizer
+            @on-change="changePage"
+            @on-page-size-change="changeSize"
+        ></Page>
         <Modal
             v-model="modal"
             title="增加图表"
@@ -22,15 +32,15 @@
                             </Select>
                         </FormItem>
                         <FormItem prop="maxCol" label="最多添加列">
-                            <Input type="text" v-model="formInline.maxCol">
+                            <Input type="number" v-model="formInline.maxCol">
                             </Input>
                         </FormItem>
                         <FormItem prop="maxRow" label="最多添加行">
-                            <Input type="text" v-model="formInline.maxRow">
+                            <Input type="number" v-model="formInline.maxRow">
                             </Input>
                         </FormItem>
                         <FormItem prop="maxData" label="最多添加数据">
-                            <Input type="text" v-model="formInline.maxData">
+                            <Input type="number" v-model="formInline.maxData">
                             </Input>
                         </FormItem>
                     </Col> 
@@ -48,22 +58,24 @@
                                 <Option value="10002">不发布</Option>
                             </Select>
                         </FormItem>
-                        <FormItem prop="previewUrl" label="预览图">
-                            <div class="demo-upload-list" v-for="item in uploadList">
-                                <template v-if="item.status === 'finished'">
-                                    <img :src="item.url">
-                                    <div class="demo-upload-list-cover">
-                                        <Icon type="ios-eye-outline" @click.native="handleView(item.name)"></Icon>
-                                        <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
-                                    </div>
-                                </template>
-                                <template v-else>
-                                    <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
-                                </template>
-                                <Modal title="预览图片" v-model="visible">
-                                    <img :src="item.url" v-if="visible" style="width: 100%">
-                                </Modal>
-                            </div>
+                        <FormItem prop="preview" label="预览图">
+                            <div class="content">
+                                <div class="demo-upload-list" v-for="item in uploadList">
+                                    <template v-if="item.status === 'finished'">
+                                        <img :src="item.url">
+                                        <div class="demo-upload-list-cover">
+                                            <Icon type="ios-eye-outline" @click.native="handleView(item.name)"></Icon>
+                                            <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
+                                    </template>
+                                    <Modal title="预览图片" v-model="visible">
+                                        <img :src="item.url" v-if="visible" style="width: 100%">
+                                    </Modal>
+                                </div>
+                            
                                 <Upload
                                     ref="upload"
                                     :action="fileUrl"
@@ -82,7 +94,8 @@
                                         <Icon type="ios-camera" size="20"></Icon>
                                     </div>
                                 </Upload>
-                         
+                            </div>
+                            
                         </FormItem>
                     </Col>
                 </Row>
@@ -92,10 +105,6 @@
                 <Button type="primary" size="large" @click="ok">确定</Button>
             </div>
         </Modal>
-        <pre>
-            {{data[0]}}
-            {{cachdata[0]}}
-        </pre>
     </div>
 </template>
 
@@ -105,6 +114,15 @@ import {equalObj, fileUrl} from '~/util';
 export default {
     name: 'production',
     data(){
+        const length = (rule, value, callback) => {
+            if(value === ``){
+                callback(new Error('请输入图表名称'))
+            }else if(value.length > 10){
+                callback(new Error('图表名称不能超过10个字符'))
+            }else{
+                callback();
+            }
+        };
         return {
             columns: [
                 {
@@ -115,7 +133,7 @@ export default {
                     title: '名称',
                     key: 'chartName',
                     render: (h, record) => {
-                        if(record.row.editable){
+                        if(record.row.chartId === this.editId){
                             return h('Input', {
                                 props: {
                                     value: record.row.chartName,
@@ -134,7 +152,6 @@ export default {
                     title: '操作',
                     key: 'chartId',
                     render: (h, record) => {
-                        console.log(record, '')
                         if(record.row.chartId === this.editId){
                             return h('div', [
                                 h('Button', {
@@ -204,15 +221,37 @@ export default {
                 maxData: '',
                 chartTypeId: '',
                 status: '',
+                preview: '',
             },
             ruleInline: {
-                user: [
-                    { required: true, message: '请输入用户名', trigger: 'blur' }
+                chartName: [
+                    { required: true, message: '请输入图表名称', trigger: 'blur' },
+                    // { validator: length, trigger: 'blur'},
+                    { type: 'string', max: 10, message: '名称最多是10位字符', trigger: 'blur' }
+
                 ],
-                pwd: [
-                    { required: true, message: '请输入密码', trigger: 'blur' },
-                    { type: 'string', min: 6, message: '密码至少是6位字符', trigger: 'blur' }
-                ]
+                chartSecondType: [
+                    { required: true, message: '请选择图表标识', trigger: 'blur' },
+                    // { type: 'string', min: 6, message: '密码至少是6位字符', trigger: 'blur' }
+                ],
+                maxCol: [
+                    { required: true, message: '请输入最大列', trigger: 'blur'},
+                ],
+                maxRow: [
+                    { required: true, message: '请输入最大行', trigger: 'blur'},
+                ],
+                maxData: [
+                    { required: true, message: '请输入最大数据', trigger: 'blur'},
+                ],
+                chartTypeId: [
+                    { required: true, message: '请选择图表类型', trigger: 'blur'},
+                ],
+                status: [
+                    { required: true, message: '请选择是否发布', trigger: 'blur'},
+                ],
+                preview: [
+                    { required: true, message: '请上传图片', trigger: 'blur'},
+                ],
             },
             data: [],
             cachdata: [],
@@ -235,79 +274,84 @@ export default {
                 },
             ],
             //上传文件的配置
-            defaultList: [
-                {
-                    'name': 'a42bdcc1178e62b4694c830f028db5c0',
-                    'url': 'https://o5wwk8baw.qnssl.com/a42bdcc1178e62b4694c830f028db5c0/avatar'
-                },
-                {
-                    'name': 'bc7521e033abdd1e92222d733590f104',
-                    'url': 'https://o5wwk8baw.qnssl.com/bc7521e033abdd1e92222d733590f104/avatar'
-                }
-            ],
-            imgName: '',
+            // defaultList: [
+            //     {
+            //         'name': 'a42bdcc1178e62b4694c830f028db5c0',
+            //         'url': 'https://o5wwk8baw.qnssl.com/a42bdcc1178e62b4694c830f028db5c0/avatar'
+            //     },
+            //     {
+            //         'name': 'bc7521e033abdd1e92222d733590f104',
+            //         'url': 'https://o5wwk8baw.qnssl.com/bc7521e033abdd1e92222d733590f104/avatar'
+            //     }
+            // ],
             visible: false,
             uploadList: [],
             fileUrl,
-
             editId: '',
+            loading: false,
+            limit: 2,
+            page: 1,
         }
     },
-    // computed: {
-    //     data: function(){
-    //         return this.$store.state.test.data;
-    //     }
-    // },
+    computed: {
+        count: function(){
+            return this.$store.state.test.count;
+        },
+        num: function(){
+            return this.page * 2;
+        }
+    },
     methods: {
         edit: function(record, key){
             if(key === 'edit'){
-                const _row = {...record.row};
-                _row.editable = true;
-                this.$set(this.data, record.index, _row);
+                this.editId = record.row.chartId;
             }
             if(key === 'cancel'){
-                const _row = {...record.row};
-                delete _row.editable;
-                this.$set(this.data, record.index, _row);
+                this.editId = "";
             }
             if(key === 'save'){
-                const _row = {...record.row};
-                delete _row.editable;
-                this.$set(this.data, record.index, _row);
-                // console.log(equalObj(this.cachdata[record.index], this.data[record.index]),_row)
                 //如果相等，直接return
                 if(equalObj(this.cachdata[record.index], this.data[record.index])){
                     return false;
                 }
                 const payload = this.cachdata[record.index];
+                this.loading = true;
                 this.$store.dispatch('test/edit', {payload}).then(res=>{
                     if(res && res.code === 0){
                         this.$Message.success('操作成功');
-                        this.data = _.cloneDeep(this.cachdata);
+                        this.$set(this.data, record.index, {...payload})
                     }else{
                         this.$Message.error('操作失败');
                     }
+                    this.editId = "";
+                    this.loading = false;
                 })
             }
             if(key === 'del'){
+                this.loading = true;
                 this.$store.dispatch('test/del', {payload: {chartId: record.row.chartId}}).then(res=> {
                     if(res && res.code === 0){
                         this.$delete(this.data, record.index);
+                        this.$Message.success('操作成功');
+                    }else{
+                        this.$Message.error('操作失败');
                     }
+                    this.loading = false;
                 })
             }
-        },
-        add: function(){
-
         },
         cancel: function(){
             this.$refs['formInline'].resetFields();
             this.modal = false;
+            this.uploadList = [];
+            this.$refs.upload.fileList = [];
+            this.$refs.upload.$el.style.display = 'inline-block';
         },
         ok: function() {
             let self = this;
             this.$refs['formInline'].validate((values) => {
                 if (values) {
+                    self.loading = true;
                     self.$store.dispatch('test/add', {payload: {...self.formInline, previewUrl: self.uploadList[0].url}}).then(res=>{
                         if(res && res.code === 0){
                             self.modal = false;
@@ -325,29 +369,34 @@ export default {
                                 chartTypeId: '',
                                 status: '',
                             };
+                            self.uploadList = [];
+                            this.$Message.success('操作成功');
                         }
+                        else{
+                            this.$Message.error('操作失败')
+                        }
+                        this.loading = false;
                     })
-                } else {
-                    self.$Message.error('操作失败')
                 }
             })
         },
         changeValue: function(e, record, key){
-            //在有key值的情况下，可以监听到改变
             this.cachdata[record.index][key] = e.target.value;
         },
         //图表上传
         handleView (name) {
-                this.imgName = name;
-                this.visible = true;
+            this.visible = true;
         },
         handleRemove (file) {
             const fileList = this.$refs.upload.fileList;
             this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
             this.$refs.upload.$el.style.display = 'inline-block';
+            this.formInline.preview = '';
         },
         handleSuccess (res, file, fileList) {
             file.url = res.data.fileUrl;
+            this.formInline.preview = res.data.fileUrl;
+            this.uploadList = this.$refs.upload.fileList;
             const check = this.uploadList.length;
             if(check === 1){
                 this.$refs.upload.$el.style.display = 'none';
@@ -356,13 +405,13 @@ export default {
         handleFormatError (file) {
             this.$Notice.warning({
                 title: '图片格式不正确',
-                desc: 'File format of ' + file.name + ' is incorrect, please select jpg or png.'
+                desc: '仅支持.jpg 或 .png格式'
             });
         },
         handleMaxSize (file) {
             this.$Notice.warning({
                 title: '文件大小超过尺寸限制',
-                desc: 'File  ' + file.name + ' is too large, no more than 2M.'
+                desc: '文件大小不能超过2M.'
             });
         },
         handleBeforeUpload () {
@@ -374,30 +423,41 @@ export default {
             }
             return check;
         },
-        // handleProgress (e, file, fileList){
-        //     console.log(file)
-        //     this.uploadList = file
-        // }
+        changePage(page){
+            this.page = page;
+            this.loadChart()
+        },
+        changeSize(size){
+            this.limit = size;
+            this.page = 1;
+            this.loadChart();
+        },
+        loadChart(){
+            this.loading = true;
+            this.$store.dispatch('test/fetch', {
+                page: this.page,
+                limit: this.limit,
+            }).then(res => {
+                if(res && res.code === 0){
+                    this.data = res.data.dataList;
+                    this.cachdata = _.cloneDeep(res.data.dataList);
+                }else{
+                    this.$Message.error('请求数据失败')
+                }
+                this.loading = false;
+            });
+        }
     },
     mounted(){
-        // this.$store.dispatch('test/fetch', {
-        //     id: 5,
-        // }).then(res => {
-        //     if(res && res.code === 0){
-        //         this.data = res.data.dataList;
-        //         this.cachdata = _.cloneDeep(res.data.dataList);
-        //     }
-        // });
-        this.data = this.$store.state.test.dataList
-        this.cachdata = _.cloneDeep(this.$store.state.test.dataList);
-        this.uploadList = this.$refs.upload.fileList;
+        this.loadChart();
     },
 }
 </script>
 
 <style lang="less" scoped>
-    .add-btn{
-        margin-bottom: 20px;
+    .h20{
+        width: 100%;
+        height: 20px;
     }
     .demo-upload-list{
         display: inline-block;
