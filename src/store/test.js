@@ -11,6 +11,14 @@ export default {
         changeData(state, payload){
             state.data = _.get(payload, 'data.dataList', []);
             state.count = _.get(payload, 'data.dataCount', 0);
+        },
+        editData(state, payload){
+            state.data = state.data.map(item=> {
+                if(item.chartId === payload.chartId){
+                    return payload;
+                }
+                return item;
+            })
         }
     },
     actions: {
@@ -21,6 +29,9 @@ export default {
         },
         async edit({commit, state}, {payload}){
             const response = await editChart(payload);
+            if(response.code === 0){
+                commit('editData', payload)
+            }
             return response;
         },
         async add({commit, state}, {payload}){

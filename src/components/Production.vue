@@ -16,7 +16,6 @@
             @on-page-size-change="changeSize"
         ></Page>    
         </Card>
-        
         <Modal
             v-model="modal"
             title="增加图表"
@@ -256,7 +255,7 @@ export default {
                     { required: true, message: '请上传图片', trigger: 'blur'},
                 ],
             },
-            data: [],
+            // data: [],
             cachdata: [],
             biaoShi: [
                 {
@@ -300,21 +299,27 @@ export default {
         count: function(){
             return this.$store.state.test.count;
         },
-        num: function(){
-            return this.page * 2;
-        }
+        data: function(){
+            return this.$store.state.test.data;
+        },
+        // cachdata: function(){
+        //     return _.cloneDeep(this.$store.state.test.data);
+        // } 
     },
     methods: {
         edit: function(record, key){
             if(key === 'edit'){
                 this.editId = record.row.chartId;
+                //每次选中一行时先恢复初始化值
+                this.$set(this.cachdata, record.index, {...record.row});
             }
             if(key === 'cancel'){
                 this.editId = "";
             }
             if(key === 'save'){
                 //如果相等，直接return
-                if(equalObj(this.cachdata[record.index], this.data[record.index])){
+                if(equalObj(this.cachdata[record.index], this.data[record.index], ['_rowKey','_index'])){
+                    this.editId = '';
                     return false;
                 }
                 const payload = this.cachdata[record.index];
@@ -322,7 +327,7 @@ export default {
                 this.$store.dispatch('test/edit', {payload}).then(res=>{
                     if(res && res.code === 0){
                         this.$Message.success('操作成功');
-                        this.$set(this.data, record.index, {...payload})
+                        // this.$set(this.data, record.index, {...payload})
                     }else{
                         this.$Message.error('操作失败');
                     }
@@ -442,7 +447,7 @@ export default {
                 limit: this.limit,
             }).then(res => {
                 if(res && res.code === 0){
-                    this.data = res.data.dataList;
+                    // this.data = res.data.dataList;
                     this.cachdata = _.cloneDeep(res.data.dataList);
                 }else{
                     this.$Message.error('请求数据失败')
