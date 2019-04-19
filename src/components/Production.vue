@@ -16,6 +16,8 @@
             @on-page-size-change="changeSize"
         ></Page>    
         </Card>
+        <ErrorComponent :id="a"></ErrorComponent>
+        
         <Modal
             v-model="modal"
             title="增加图表"
@@ -113,8 +115,12 @@
 <script>
 import _ from 'lodash';
 import {equalObj, fileUrl} from '~/util';
+import ErrorComponent from './ErrorComponent';
 export default {
     name: 'production',
+    components: {
+        ErrorComponent,
+    },
     data(){
         const length = (rule, value, callback) => {
             if(value === ``){
@@ -293,6 +299,7 @@ export default {
             loading: false,
             limit: 5,
             page: 1,
+            a: 1,
         }
     },
     computed: {
@@ -458,7 +465,14 @@ export default {
     },
     mounted(){
         this.loadChart();
+        let self = this;
+        // this.timer = setInterval(function(){
+        //     self.a++;
+        // }, 1000)
     },
+    beforeDestroy(){
+        clearInterval(this.timer);
+    }
 }
 </script>
 

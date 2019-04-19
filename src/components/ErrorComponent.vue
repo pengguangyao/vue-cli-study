@@ -1,9 +1,19 @@
 <template>
-    <div>错误组件</div>
+    <div>错误组件 {{num}}</div>
 </template>
 
 <script>
 export default {
-    name: 'ErrorComponent'
+    name: 'ErrorComponent',
+    props: ['id'],
+    computed: {
+        num: function(){
+            console.log(this.id)
+            return this.id || 100000;
+        }
+    },
+    mounted(){
+    
+    }
 }
 </script>
