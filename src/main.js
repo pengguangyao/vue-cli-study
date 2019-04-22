@@ -5,6 +5,7 @@ import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import store from './store';
 import routes from './router';
+import App from './App.vue';
 
 //引用mockjs
 import './mock/index';
@@ -16,7 +17,9 @@ Vue.use(VueRouter);
 
 //创建路由和store
 export const appStore = new Vuex.Store(store);
-export const router = new VueRouter(routes);
+export const router = new VueRouter({
+  routes,
+});
 
 //路由守卫
 router.beforeEach((to, from, next) => {
@@ -28,5 +31,5 @@ new Vue({
   el: '#app',
   router,
   store: appStore,
-  template: '<router-view></router-view>',
+  render: h=>h(App),
 })

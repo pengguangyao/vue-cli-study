@@ -8,43 +8,49 @@ const Login = () => import('@/components/Login')
 const App = () => import('@/App.vue')
 const LoadingComponent = () => import('@/components/LoadingComponent')
 const ErrorComponent = () => import('@/components/ErrorComponent')
-
-export default {
-  routes: [
-    {
-      path: '/login',
-      component: Login,
-    },
-    {
-      path: '/base',
-      component: App,
-      redirect: '/control',
-      children: [
-        {
-          path: '/control',
-          component: User,
-        },
-        {
-          path: '/success/production',
-          component: Production,
-        },
-        {
-          path: '/success/solution',
-          component: LoadingComponent,
-        },
-        {
-          path: '/success/news',
-          component: ErrorComponent,
-        },
-        {
-          path: '/exception/404',
-          component: LoadingComponent,
-        }
-      ]
-    },
-    {
-      path: '*',
-      redirect: '/login',
-    }
-  ]
-}
+const Main = () => import('@/components/main')
+export default [
+  {
+    path: '/login',
+    component: Login,
+  },
+  {
+    path: '/',
+    component: Main,
+    redirect: '/control',
+    children: [
+      {
+        path: '/control',
+        name: 'control',
+        component: User,
+      }
+    ]
+  },
+  {
+    path: '/success',
+    name: 'success',
+    component: Main,
+    children: [
+      {
+        path: '/success/production',
+        component: Production,
+      },
+      {
+        path: '/success/solution',
+        component: LoadingComponent,
+      },
+      {
+        path: '/success/news',
+        component: ErrorComponent,
+      },
+      {
+        path: '/exception/404',
+        component: LoadingComponent,
+      },
+    ]
+  },
+  {
+    path: '*',
+    redirect: '/login',
+  }
+]
